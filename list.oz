@@ -9,8 +9,8 @@ export
     member:Member
 define  
     fun {Length L}
-        case L of Head|Rest then
-            1 + {Length Rest}
+        case L of Head|Tail then
+            1 + {Length Tail}
         else
             0
         end
@@ -20,12 +20,12 @@ define
         if 0 >= Count then
             nil
         else
-            case L of Head|Rest then
+            case L of Head|Tail then
                 local
                     NewCount
                 in
                     NewCount = Count - 1
-                    Head | {Take Rest NewCount}
+                    Head | {Take Tail NewCount}
                 end
             else
                 nil
@@ -37,12 +37,12 @@ define
         if 0 >= Count then
             L
         else
-            case L of Head|Rest then
+            case L of Head|Tail then
                 local
                     NewCount
                 in
                     NewCount = Count - 1
-                    {Drop Rest NewCount}
+                    {Drop Tail NewCount}
                 end
             else
                 L
@@ -51,8 +51,8 @@ define
     end
 
     fun {Append L1 L2} 
-        case L1 of Head|Rest then
-            Head | {Append Rest L2}
+        case L1 of Head|Tail then
+            Head | {Append Tail L2}
         else 
             L2
         end
@@ -60,11 +60,11 @@ define
 
     
     fun {Member L Element}
-        case L of Head|Rest then
+        case L of Head|Tail then
             if Element == Head then
                 true
             else 
-                {Member Rest Element}
+                {Member Tail Element}
             end
         else 
             false
@@ -72,11 +72,11 @@ define
     end
 
     fun {Position L Element}
-        case L of Head|Rest then
+        case L of Head|Tail then
             if Element == Head then
                 1
             else 
-                1 + {Position Rest Element}
+                1 + {Position Tail Element}
             end
         else 
             0
