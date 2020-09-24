@@ -35,7 +35,8 @@ define
                     Token = command(flipSign)
                 elseif Head == "^" then
                     Token = command(inverse)
-                else 
+                else
+                    % Exception when we read an unknown character 
                     raise 
                         {VirtualString.toAtom "Unrecognized character"#Head}
                     end
@@ -48,12 +49,16 @@ define
     end
 
     fun {Interpret Tokens} 
+        % When we interpret, we build a stack that stores previous numbers
         fun {InnerInterpret Tokens Stack}
+            % If we get a operator token
             case Tokens of operator(O)|TTail then
+                % We expect there to be alteast two numbers in the stack
                 case Stack of number(N1)|number(N2)|STail then
                     local 
                         Result 
                     in
+                        % We then match the operator and perform said operation
                         case O of plus then
                             Result = number(N1 + N2)
                         [] minus then
@@ -61,11 +66,13 @@ define
                         [] multiply then
                             Result = number(N1 * N2)
                         [] divide then 
-                            Result =  number(N1 / N2)
+                            Result = number(N1 / N2)
                         end % TODO: we can have else with raise here
+
                         {InnerInterpret TTail Result|STail}
                     end
                 else 
+                    % If we reach an operator and we do not have two numbers on the stack, we raise as this is an invalid state
                     raise 
                         {VirtualString.toAtom "Invalid format exptected number number operator"}
                     end
@@ -75,7 +82,12 @@ define
                     {System.show {List.reverse Stack}}
                     {InnerInterpret Tail Stack}
                 [] duplicate then
-                    {InnerInterpret Tail Stack.1|Stack}
+                    case Stack of Head|STail then
+                        % On duplicate, we insert the head of the stack onto the stack
+                        {InnerInterpret Tail Stack.1|Stack}
+                    else 
+                        {InnerInterpret Tail nil}
+                    end
                 [] flipSign then
                     case Stack of Head|STail then
                         {InnerInterpret Tail number(~Head.1)|STail}
@@ -90,8 +102,10 @@ define
                     end
                 end 
             [] number(N)|Tail then
+                % If we get a number token, we insert it onto the stack
                 {InnerInterpret Tail number(N)|Stack}
             else 
+                % When we are done reading tokens, we reverse the stack to extract result
                 {List.reverse Stack}
             end
         end 
@@ -99,6 +113,7 @@ define
        {InnerInterpret Tokens nil}
     end
 
+    % TODO: omit parentheses when they are not needed
     fun {Infix Tokens}
         fun {InfixInternal Tokens ExpressionStack}
             case Tokens of number(N)|Tail then
@@ -107,28 +122,36 @@ define
                 local 
                     OChar 
                     Expr
-                    Left = ExpressionStack.1
-                    Right = ExpressionStack.2.1
+                    Left = ExpressionStack.2.1
+                    Right = ExpressionStack.1
                 in
+                    % Map operator token to char sign
                     case O of plus then
-                        OChar = '+'
+                        OChar = "+"
                     [] minus then
-                        OChar = '-'
+                        OChar = "-"
                     [] multiply then
-                        OChar = '*'
+                        OChar = "*"
                     [] divide then 
-                        OChar =  '/'
+                        OChar = "/"
+                    else 
+                        raise 
+                            {VirtualString.toAtom "Unrecognized operator "#OChar}
+                        end
                     end
-                    Expr = "("#Left#" "#OChar#" "#Right#")"
-                    {InfixInternal Tail Expr|ExpressionStack.2.2} % TODO: ExpressionStack.2 migth be nil
+                    Expr = "("#Left#" "#OChar#" "#Right#")" 
+                    % TODO: ExpressionStack.2 migth be nil
+                    {InfixInternal Tail Expr|ExpressionStack.2.2} 
                 end
             [] command(C)|Tail then
+                % TODO: Implement commands?
                 {InfixInternal Tail ExpressionStack}
-            else 
+            else  
                 ExpressionStack
             end
         end
     in
-        {InfixInternal Tokens nil}
+        % Get the built expression from the stack
+        {InfixInternal Tokens nil}.1
     end
 end
