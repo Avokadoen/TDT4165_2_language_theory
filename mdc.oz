@@ -6,6 +6,7 @@ export
     lex:Lex
     tokenize:Tokenize
     interpret:Interpret
+    infix:Infix
 define  
     fun {Lex Str}
         {String.tokens Str 32}
@@ -100,7 +101,7 @@ define
 
     fun {Infix Tokens}
         fun {InfixInternal Tokens ExpressionStack}
-            case Tokens of number(N))|Tail then
+            case Tokens of number(N)|Tail then
                 {InfixInternal Tail {Float.toString N}|ExpressionStack}
             [] operator(O)|Tail then
                 local 
@@ -118,11 +119,13 @@ define
                     [] divide then 
                         OChar =  '/'
                     end
-                    Expr = "("#Left#" "#Ochar#" "#Right#")"
+                    Expr = "("#Left#" "#OChar#" "#Right#")"
                     {InfixInternal Tail Expr|ExpressionStack.2.2} % TODO: ExpressionStack.2 migth be nil
                 end
             [] command(C)|Tail then
                 {InfixInternal Tail ExpressionStack}
+            else 
+                ExpressionStack
             end
         end
     in

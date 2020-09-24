@@ -38,8 +38,8 @@ define
         {System.showInfo "\n------------Task 2g-----------"}
         {System.show {Mdc.interpret {Mdc.tokenize {Mdc.lex "2 ^ 2 ^ +"}}}}
 
-           {System.showInfo "\n------------Task 3a-----------"}
-        {System.show {Mdc.interpret {Mdc.tokenize {Mdc.lex "3 3 +"}}}}
+        {System.showInfo "\n------------Task 3a-----------"}
+        {System.showInfo {Mdc.infix {Mdc.tokenize {Mdc.lex "3 3 +"}}}}
     end
     {Exit 0}
 end
