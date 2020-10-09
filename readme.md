@@ -1,4 +1,4 @@
-# TDT4165_Assignment2 
+# TDT4165 Assignment2 - Language Theory 
 My code for assignment 2 in NTNU course TDT4165
 
 report can be found [here](https://www.overleaf.com/read/zxfkzmwhnyts)
